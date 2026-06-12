@@ -1,0 +1,19 @@
+{
+  "name": "cardekho-cartrade-india-used-cars-scraper",
+  "version": "1.0.0",
+  "description": "Apify Actor for scraping India used-car listings from CarDekho and CarTrade.",
+  "type": "module",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "node ./node_modules/typescript/bin/tsc",
+    "start": "node dist/main.js"
+  },
+  "dependencies": {
+    "apify": "^3.4.2",
+    "undici": "^6.21.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.15",
+    "typescript": "^5.5.4"
+  }
+}

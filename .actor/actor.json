@@ -1,0 +1,37 @@
+{
+  "actorSpecification": 1,
+  "name": "cardekho-cartrade-india-used-cars-scraper",
+  "title": "CarDekho & CarTrade India Used Cars Scraper",
+  "description": "Scrape Indian used-car listings from CarDekho and CarTrade with prices, model year, kilometres, fuel type, transmission, images, and listing URLs.",
+  "version": "1.0",
+  "buildTag": "latest",
+  "meta": {
+    "templateId": "ts-start"
+  },
+  "dockerfile": "Dockerfile",
+  "input": "../INPUT_SCHEMA.json",
+  "readme": "../README.md",
+  "storages": {
+    "dataset": "./dataset_schema.json"
+  },
+  "defaultRunOptions": {
+    "build": "latest",
+    "memoryMbytes": 1024,
+    "timeoutSecs": 14400
+  },
+  "categories": ["ECOMMERCE", "LEAD_GENERATION", "OTHER"],
+  "pricingInfo": {
+    "pricingModel": "PAY_PER_EVENT",
+    "pricingPerEvent": {
+      "actorChargeEvents": {
+        "car-scraped": {
+          "eventTitle": "Car scraped",
+          "eventDescription": "Charged once for each clean used-car listing saved to the dataset.",
+          "eventPriceUsd": 0.003,
+          "isPrimaryEvent": true,
+          "isOneTimeEvent": false
+        }
+      }
+    }
+  }
+}

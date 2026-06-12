@@ -1,0 +1,9 @@
+{
+  "source": "both",
+  "cities": ["Mumbai"],
+  "models": ["Honda City"],
+  "maxResults": 12,
+  "proxyConfiguration": {
+    "useApifyProxy": false
+  }
+}

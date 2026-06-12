@@ -1,0 +1,79 @@
+{
+  "actorSpecification": 1,
+  "views": {
+    "cars": {
+      "title": "Cars",
+      "transformation": {
+        "fields": [
+          "imageUrl",
+          "source",
+          "searchQuery",
+          "cityQuery",
+          "title",
+          "year",
+          "priceDisplay",
+          "kmDriven",
+          "fuelType",
+          "transmission",
+          "owner",
+          "listingBadge",
+          "location",
+          "listingUrl",
+          "scrapedAt"
+        ]
+      },
+      "display": {
+        "component": "table",
+        "properties": {
+          "imageUrl": {
+            "label": "Image",
+            "format": "image"
+          },
+          "source": {
+            "label": "Source"
+          },
+          "searchQuery": {
+            "label": "Search"
+          },
+          "cityQuery": {
+            "label": "City Query"
+          },
+          "title": {
+            "label": "Car"
+          },
+          "year": {
+            "label": "Year"
+          },
+          "priceDisplay": {
+            "label": "Price"
+          },
+          "kmDriven": {
+            "label": "KM"
+          },
+          "fuelType": {
+            "label": "Fuel"
+          },
+          "transmission": {
+            "label": "Transmission"
+          },
+          "owner": {
+            "label": "Owner"
+          },
+          "listingBadge": {
+            "label": "Badge"
+          },
+          "location": {
+            "label": "Location"
+          },
+          "listingUrl": {
+            "label": "URL",
+            "format": "link"
+          },
+          "scrapedAt": {
+            "label": "Scraped At"
+          }
+        }
+      }
+    }
+  }
+}
