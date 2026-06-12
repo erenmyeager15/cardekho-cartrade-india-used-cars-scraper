@@ -2,7 +2,7 @@
 
 The CarDekho and CarTrade used cars scraper extracts real Indian used-car listings by city and car model from both marketplaces. Export to JSON, CSV, Excel, or HTML, or pull via the Apify API — no login and no API key required.
 
-This scraper collects price, model year, kilometres driven, fuel type, transmission, owner information, images, location, and listing URLs into one clean dataset. Built with Node.js 20, TypeScript, and native fetch, it parses each site's structured listing data with retries and optional Apify residential proxies so runs stay reliable and repeatable.
+This scraper collects price, model year, kilometres driven, fuel type, transmission, ownership history, images, location, and listing URLs into one clean dataset. Built with Node.js 20, TypeScript, and native fetch, it parses each site's structured listing data with retries and optional Apify residential proxies so runs stay reliable and repeatable.
 
 ## What It Extracts
 
@@ -14,7 +14,7 @@ This scraper collects price, model year, kilometres driven, fuel type, transmiss
 - Fuel type and transmission
 - Body type, owner count, and color when available
 - Badge such as Certified, Featured, Sponsored, Partner, or Direct Owner when available
-- City, state, location, and address when available
+- City, state, and location when available
 - Main image URL
 - Public listing URL
 - Scraped timestamp
@@ -23,7 +23,7 @@ This scraper collects price, model year, kilometres driven, fuel type, transmiss
 
 - Used-car price monitoring across Indian cities
 - Dealer inventory research for auto marketplaces and dealerships
-- Lead generation for car finance, insurance, and inspection services
+- Market research for car finance, insurance, and inspection services
 - Competitive intelligence for popular models such as Honda City, Swift, Creta, Fortuner, and Innova
 - Market analytics for resale values, mileage bands, fuel type demand, and city-level supply
 
@@ -105,7 +105,6 @@ You are charged only after a clean used-car record is saved to the dataset.
   "city": "Mumbai",
   "state": null,
   "location": "Mumbai",
-  "address": null,
   "imageUrl": "https://images10.gaadi.com/usedcar_image/5332642/original/processed_97105be4-e06b-46c2-a673-2716292d46a3.jpg",
   "listingUrl": "https://www.cardekho.com/used-car-details/used-Honda-city-i-vtec-cvt-sv-cars-Mumbai_3268e027-6ac0-45ac-87ce-15b2e1eddcfd.htm",
   "sourceRank": null,
@@ -146,6 +145,12 @@ The actor fetches public used-car listing pages from CarDekho and CarTrade, pars
 - Some fields are source-dependent. For example, CarTrade card pages may not expose transmission or owner on every result.
 - Source websites may change their public markup or restrict traffic. Use Apify Proxy if larger runs become less reliable.
 - This actor is not affiliated with CarDekho or CarTrade.
+
+## Responsible Use
+
+This Actor is intended for lawful collection of publicly available information only. Users are responsible for ensuring their use complies with the source website's terms, robots.txt, applicable privacy laws, including India's DPDP Act, and all local regulations.
+
+Do not use this Actor to collect, store, sell, or misuse personal data without a lawful basis. The Actor author is not responsible for misuse by end users.
 
 ## License
 

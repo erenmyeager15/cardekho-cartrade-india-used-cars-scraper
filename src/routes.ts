@@ -8,7 +8,6 @@ const MAX_RESULTS = 500;
 const CARDDEKHO_BASE_URL = 'https://www.cardekho.com';
 const CARTRADE_BASE_URL = 'https://www.cartrade.com';
 const BLOCKED_STATUS_CODES = new Set([401, 403, 407, 408, 409, 425, 429, 500, 502, 503, 504]);
-const SENSITIVE_TEXT_PATTERN = /(?:\+?\d[\d\s().-]{8,}\d)|[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi;
 
 type ProxyLike = {
   newUrl: () => Promise<string | undefined> | string | undefined;
@@ -291,7 +290,6 @@ function normalizeJsonLdCar(job: SearchJob, car: JsonLdCar): UsedCarRecord {
     city: cleanOptionalString(address?.addressLocality) ?? cityFromTitle(title) ?? job.city,
     state: cleanOptionalString(address?.addressRegion),
     location: cleanOptionalString(address?.addressLocality) ?? job.city,
-    address: redactSensitiveText(cleanOptionalString(address?.streetAddress) ?? ''),
     imageUrl: firstImageUrl(car.image),
     listingUrl: url,
     sourceRank: toInteger(car.position),
@@ -347,7 +345,6 @@ function parseCarTradeCards(job: SearchJob, html: string): UsedCarRecord[] {
       city: job.city,
       state: null,
       location,
-      address: null,
       imageUrl: decodeHtml(card.match(/<img[^>]+src=["']([^"']+)["'][^>]*alt=["']Used/i)?.[1] ?? card.match(/<img[^>]+src=["']([^"']+)["']/i)?.[1] ?? '') || null,
       listingUrl: url,
       sourceRank: rank === null ? null : rank + 1,
@@ -538,11 +535,6 @@ function cleanOptionalString(value: unknown): string | null {
 
 function formatIndianNumber(value: number): string {
   return new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 }).format(value);
-}
-
-function redactSensitiveText(value: string): string | null {
-  const redacted = value.replace(SENSITIVE_TEXT_PATTERN, (match) => (match.includes('@') ? '[email redacted]' : '[phone redacted]')).trim();
-  return redacted || null;
 }
 
 function hashText(value: string): string {

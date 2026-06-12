@@ -43,7 +43,6 @@ export interface UsedCarRecord {
   city: string | null;
   state: string | null;
   location: string | null;
-  address: string | null;
   imageUrl: string | null;
   listingUrl: string;
   sourceRank: number | null;
@@ -83,7 +82,6 @@ export interface JsonLdCar {
   };
   location?: {
     address?: {
-      streetAddress?: string;
       addressLocality?: string;
       addressRegion?: string;
       postalCode?: string;
