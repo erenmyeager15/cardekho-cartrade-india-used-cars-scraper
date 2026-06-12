@@ -1,6 +1,8 @@
 # CarDekho & CarTrade India Used Cars Scraper - Prices, KM & Listings
 
-Scrape Indian used-car listings from CarDekho and CarTrade and export clean vehicle data to JSON, CSV, Excel, or HTML, or pull it via the Apify API. This actor collects marketplace listings by city and car model, including price, model year, kilometres driven, fuel type, transmission, owner information when available, images, location, and listing URLs. No login or API key is required.
+The CarDekho and CarTrade used cars scraper extracts real Indian used-car listings by city and car model from both marketplaces. Export to JSON, CSV, Excel, or HTML, or pull via the Apify API — no login and no API key required.
+
+This scraper collects price, model year, kilometres driven, fuel type, transmission, owner information, images, location, and listing URLs into one clean dataset. Built with Node.js 20, TypeScript, and native fetch, it parses each site's structured listing data with retries and optional Apify residential proxies so runs stay reliable and repeatable.
 
 ## What It Extracts
 
@@ -53,37 +55,84 @@ You are charged only after a clean used-car record is saved to the dataset.
 4. Optionally set a price range and result limit.
 5. Run the actor and export the dataset or connect through the Apify API.
 
-## Sample Output
+## Example Input
+
+```json
+{
+  "source": "both",
+  "cities": ["Mumbai"],
+  "models": ["Honda City"],
+  "maxResults": 50
+}
+```
+
+### Multi-city, price-filtered search
 
 ```json
 {
   "source": "cartrade",
+  "cities": ["Delhi NCR", "Bangalore"],
+  "models": ["Maruti Swift", "Hyundai Creta"],
+  "minPrice": 300000,
+  "maxPrice": 900000,
+  "maxResults": 200,
+  "proxyConfiguration": { "useApifyProxy": true, "apifyProxyGroups": ["RESIDENTIAL"] }
+}
+```
+
+## Sample Output
+
+```json
+{
+  "source": "cardekho",
   "searchQuery": "Honda City",
   "cityQuery": "Mumbai",
-  "listingId": "e08g4e0j",
-  "title": "2014 Honda City VX Diesel",
+  "listingId": "3268e027-6ac0-45ac-87ce-15b2e1eddcfd",
+  "title": "2015 Honda City",
   "make": "Honda",
-  "model": "City",
-  "year": 2014,
-  "price": 550000,
-  "priceDisplay": "INR 5,50,000",
+  "model": "City 2014-2015",
+  "year": 2015,
+  "price": 395000,
+  "priceDisplay": "INR 3,95,000",
   "currency": "INR",
-  "kmDriven": 110962,
-  "fuelType": "Diesel",
-  "transmission": "Manual",
+  "kmDriven": 51000,
+  "fuelType": "Petrol",
+  "transmission": "Automatic",
   "bodyType": "Sedan",
-  "owner": "First Owner",
-  "color": "White",
-  "listingBadge": "Sponsored",
+  "owner": "First-Owner",
+  "color": "Brown",
+  "listingBadge": null,
   "city": "Mumbai",
-  "state": "Maharashtra",
-  "location": "Mulund (W), Mumbai",
-  "address": "Mumbai, Maharashtra",
-  "imageUrl": "https://imgd-ct.aeplcdn.com/640X480/vimages/example.jpg",
-  "listingUrl": "https://www.cartrade.com/second-hand/mumbai/honda-city/e08g4e0j/",
-  "sourceRank": 1,
-  "scrapedAt": "2026-06-12T12:45:00.000Z"
+  "state": null,
+  "location": "Mumbai",
+  "address": null,
+  "imageUrl": "https://images10.gaadi.com/usedcar_image/5332642/original/processed_97105be4-e06b-46c2-a673-2716292d46a3.jpg",
+  "listingUrl": "https://www.cardekho.com/used-car-details/used-Honda-city-i-vtec-cvt-sv-cars-Mumbai_3268e027-6ac0-45ac-87ce-15b2e1eddcfd.htm",
+  "sourceRank": null,
+  "scrapedAt": "2026-06-12T19:56:21.039Z"
 }
+```
+
+## API Example
+
+```bash
+curl -X POST "https://api.apify.com/v2/acts/YOUR_ACTOR_ID/runs?token=YOUR_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"source":"both","cities":["Mumbai"],"models":["Honda City"],"maxResults":50}'
+```
+
+```js
+import { ApifyClient } from 'apify-client';
+
+const client = new ApifyClient({ token: 'YOUR_API_TOKEN' });
+const run = await client.actor('YOUR_ACTOR_ID').call({
+  source: 'both',
+  cities: ['Mumbai'],
+  models: ['Honda City'],
+  maxResults: 50,
+});
+const { items } = await client.dataset(run.defaultDatasetId).listItems();
+console.log(`Got ${items.length} used-car listings`);
 ```
 
 ## How It Works
