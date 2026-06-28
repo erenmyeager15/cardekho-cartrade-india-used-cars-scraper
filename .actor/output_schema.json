@@ -1,0 +1,14 @@
+{
+  "actorOutputSchemaVersion": 1,
+  "title": "CarDekho & CarTrade Used Cars Scraper Output",
+  "description": "Structured Indian used-car listing records with sources, search and city queries, listing IDs, titles, make, model, year, prices, kilometres driven, fuel type, transmission, body type, ownership, locations, image URLs, listing URLs, and scraped timestamps.",
+  "type": "object",
+  "properties": {
+    "results": {
+      "type": "string",
+      "title": "Used car listing records",
+      "description": "Clean dataset items containing public CarDekho and CarTrade used-car listing, pricing, vehicle detail, location, image, and URL data.",
+      "template": "{{links.apiDefaultDatasetUrl}}/items"
+    }
+  }
+}

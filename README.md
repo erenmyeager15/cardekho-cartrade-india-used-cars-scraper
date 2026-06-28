@@ -33,7 +33,7 @@ This scraper collects price, model year, kilometres driven, fuel type, transmiss
 | --- | ---: | ---: | ---: |
 | `car-scraped` | `$0.003` per car | `$3.00` | `$30.00` |
 
-You are charged only after a clean used-car record is saved to the dataset.
+Each clean used-car record is saved and charged atomically. The Actor stops before further source requests when the user's spending limit is reached.
 
 ## Input
 
@@ -80,7 +80,7 @@ You are charged only after a clean used-car record is saved to the dataset.
 }
 ```
 
-## Sample Output
+## Output dataset
 
 ```json
 {
@@ -136,7 +136,7 @@ console.log(`Got ${items.length} used-car listings`);
 
 ## How It Works
 
-The actor fetches public used-car listing pages from CarDekho and CarTrade, parses structured listing data and listing-card markup, normalizes fields into one dataset, deduplicates by source and listing ID, applies optional price filters, and charges only after a record is saved.
+The actor fetches public used-car listing pages from CarDekho and CarTrade, parses structured listing data and listing-card markup, normalizes fields into one dataset, deduplicates by source and listing ID, applies optional price filters, and atomically saves and charges each accepted record.
 
 ## Known Limits
 

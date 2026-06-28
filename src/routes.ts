@@ -22,15 +22,21 @@ export function normalizeInput(input: ActorInput | null | undefined): Normalized
   const source = normalizeSource(input?.source);
   const cities = uniqueStrings(input?.cities).map((city) => city.trim()).filter(Boolean);
   const models = uniqueStrings(input?.models).map((model) => model.trim()).filter(Boolean);
+  const minPrice = normalizeNumber(input?.minPrice);
+  const maxPrice = normalizeNumber(input?.maxPrice);
+
+  if (minPrice !== undefined && maxPrice !== undefined && minPrice > maxPrice) {
+    throw new Error(`Minimum price (${minPrice}) cannot be greater than maximum price (${maxPrice}).`);
+  }
 
   return {
     source,
     sources: source === 'both' ? ['cardekho', 'cartrade'] : [source],
     cities: cities.length ? cities : ['Mumbai'],
     models: models.length ? models : ['honda city'],
-    minPrice: normalizeNumber(input?.minPrice),
-    maxPrice: normalizeNumber(input?.maxPrice),
-    maxResults: clampNumber(input?.maxResults ?? 50, 1, MAX_RESULTS),
+    minPrice,
+    maxPrice,
+    maxResults: clampNumber(input?.maxResults ?? 10, 1, MAX_RESULTS),
   };
 }
 
@@ -67,9 +73,10 @@ export async function* scrapeUsedCars(
   }
 }
 
-export async function pushAndCharge(record: UsedCarRecord): Promise<void> {
-  await Actor.pushData(record);
-  await Actor.charge({ eventName: CHARGE_EVENT_NAME });
+export async function pushAndCharge(record: UsedCarRecord) {
+  // Push and charge atomically so records beyond the user's charge limit are
+  // not saved for free and billing failures stop the run immediately.
+  return Actor.pushData(record, CHARGE_EVENT_NAME);
 }
 
 function createJobs(input: NormalizedInput): SearchJob[] {
@@ -313,12 +320,11 @@ function parseCarTradeCards(job: SearchJob, html: string): UsedCarRecord[] {
     const url = absoluteUrl('cartrade', href);
     const label = matchAttr(card, 'data-label') ?? '';
     const stockId = label.match(/stockId=([^|"]+)/)?.[1] ?? matchAttr(card, 'data-stockid') ?? extractListingId(url);
-    const title =
-      decodeHtml(card.match(/title=["']Buy Used ([^"']+)["']/i)?.[1] ?? '') ||
-      decodeHtml(card.match(/alt=["']Used ([^"']+)["']/i)?.[1] ?? '') ||
-      (text.match(/\b(20\d{2}|19\d{2})\s+(.+?)\s+(?:\u20B9|INR|Rs\.?)/i)?.[0] ??
-        '');
-      '';
+	    const title =
+	      decodeHtml(card.match(/title=["']Buy Used ([^"']+)["']/i)?.[1] ?? '') ||
+	      decodeHtml(card.match(/alt=["']Used ([^"']+)["']/i)?.[1] ?? '') ||
+	      (text.match(/\b(20\d{2}|19\d{2})\s+(.+?)\s+(?:\u20B9|INR|Rs\.?)/i)?.[0] ??
+	        '');
     const priceDisplay = extractPriceDisplay(text);
     const location = extractCardLocation(text);
     const rank = toInteger(card.match(/used-car-card-(\d+)/i)?.[1]);

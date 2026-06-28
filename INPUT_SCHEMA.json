@@ -1,63 +1,80 @@
 {
-  "title": "India Used Cars Scraper Input",
-  "type": "object",
-  "schemaVersion": 1,
-  "properties": {
-    "source": {
-      "title": "Source",
-      "type": "string",
-      "description": "Choose CarDekho, CarTrade, or both sources.",
-      "editor": "select",
-      "default": "both",
-      "enum": ["both", "cardekho", "cartrade"],
-      "enumTitles": ["Both", "CarDekho", "CarTrade"]
-    },
-    "cities": {
-      "title": "Cities",
-      "type": "array",
-      "description": "Indian cities to search. Examples: Mumbai, Delhi NCR, Bangalore, Hyderabad, Chennai, Pune.",
-      "editor": "stringList",
-      "default": ["Mumbai"]
-    },
-    "models": {
-      "title": "Car models",
-      "type": "array",
-      "description": "Car make/model searches. Examples: Honda City, Maruti Swift, Toyota Fortuner. Use All Cars for broad city listings.",
-      "editor": "stringList",
-      "default": ["Honda City"]
-    },
-    "minPrice": {
-      "title": "Minimum price",
-      "type": "integer",
-      "description": "Optional minimum used-car price in INR.",
-      "editor": "number",
-      "minimum": 0
-    },
-    "maxPrice": {
-      "title": "Maximum price",
-      "type": "integer",
-      "description": "Optional maximum used-car price in INR.",
-      "editor": "number",
-      "minimum": 0
-    },
-    "maxResults": {
-      "title": "Max results",
-      "type": "integer",
-      "description": "Maximum number of unique used-car listings to save. Supports up to 500 records per run.",
-      "editor": "number",
-      "default": 50,
-      "minimum": 1,
-      "maximum": 500
-    },
-    "proxyConfiguration": {
-      "title": "Proxy configuration",
-      "type": "object",
-      "description": "Optional Apify Proxy settings. Direct requests usually work; proxies can improve reliability for larger runs.",
-      "editor": "proxy",
-      "default": {
-        "useApifyProxy": false
-      }
-    }
-  },
-  "required": ["source", "cities", "models", "maxResults"]
+    "title":  "India Used Cars Scraper Input",
+    "type":  "object",
+    "schemaVersion":  1,
+    "properties":  {
+                       "source":  {
+                                      "title":  "Source",
+                                      "type":  "string",
+                                      "description":  "Choose CarDekho, CarTrade, or both sources.",
+                                      "editor":  "select",
+                                      "default":  "both",
+                                      "enum":  [
+                                                   "both",
+                                                   "cardekho",
+                                                   "cartrade"
+                                               ],
+                                      "enumTitles":  [
+                                                         "Both",
+                                                         "CarDekho",
+                                                         "CarTrade"
+                                                     ]
+                                  },
+                       "cities":  {
+                                      "title":  "Cities",
+                                      "type":  "array",
+                                      "description":  "Indian cities to search. Examples: Mumbai, Delhi NCR, Bangalore, Hyderabad, Chennai, Pune.",
+                                      "editor":  "stringList",
+                                      "default":  [
+                                                      "Mumbai"
+                                                  ]
+                                  },
+                       "models":  {
+                                      "title":  "Car models",
+                                      "type":  "array",
+                                      "description":  "Car make/model searches. Examples: Honda City, Maruti Swift, Toyota Fortuner. Use All Cars for broad city listings.",
+                                      "editor":  "stringList",
+                                      "default":  [
+                                                      "Honda City"
+                                                  ]
+                                  },
+                       "minPrice":  {
+                                        "title":  "Minimum price",
+                                        "type":  "integer",
+                                        "description":  "Optional minimum used-car price in INR.",
+                                        "editor":  "number",
+                                        "minimum":  0
+                                    },
+                       "maxPrice":  {
+                                        "title":  "Maximum price",
+                                        "type":  "integer",
+                                        "description":  "Optional maximum used-car price in INR.",
+                                        "editor":  "number",
+                                        "minimum":  0
+                                    },
+                       "maxResults":  {
+                                          "title":  "Max results",
+                                          "type":  "integer",
+                                          "description":  "Maximum number of unique used-car listings to save. Supports up to 500 records per run.",
+                                          "editor":  "number",
+                                          "default":  10,
+                                          "minimum":  1,
+                                          "maximum":  500
+                                      },
+                       "proxyConfiguration":  {
+                                                  "title":  "Proxy configuration",
+                                                  "type":  "object",
+                                                  "description":  "Optional Apify Proxy settings. Direct requests usually work; proxies can improve reliability for larger runs.",
+                                                  "editor":  "proxy",
+                                                  "default":  {
+                                                                  "useApifyProxy":  false
+                                                              }
+                                              }
+                   },
+    "required":  [
+                     "source",
+                     "cities",
+                     "models",
+                     "maxResults"
+                 ]
 }
