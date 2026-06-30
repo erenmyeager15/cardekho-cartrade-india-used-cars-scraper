@@ -5,6 +5,8 @@ import type { ActorInput, JsonLdCar, NormalizedInput, SearchJob, Source, UsedCar
 export const CHARGE_EVENT_NAME = 'car-scraped';
 
 const MAX_RESULTS = 500;
+const MAX_FILTER_ITEMS = 10;
+const MAX_SEARCH_JOBS = 40;
 const CARDDEKHO_BASE_URL = 'https://www.cardekho.com';
 const CARTRADE_BASE_URL = 'https://www.cartrade.com';
 const BLOCKED_STATUS_CODES = new Set([401, 403, 407, 408, 409, 425, 429, 500, 502, 503, 504]);
@@ -20,23 +22,31 @@ interface FetchOptions {
 
 export function normalizeInput(input: ActorInput | null | undefined): NormalizedInput {
   const source = normalizeSource(input?.source);
-  const cities = uniqueStrings(input?.cities).map((city) => city.trim()).filter(Boolean);
-  const models = uniqueStrings(input?.models).map((model) => model.trim()).filter(Boolean);
-  const minPrice = normalizeNumber(input?.minPrice);
-  const maxPrice = normalizeNumber(input?.maxPrice);
+  const sources = source === 'both' ? ['cardekho', 'cartrade'] as const : [source];
+  const cities = uniqueStrings(input?.cities).slice(0, MAX_FILTER_ITEMS);
+  const models = uniqueStrings(input?.models).slice(0, MAX_FILTER_ITEMS);
+  const normalizedCities = cities.length ? cities : ['Mumbai'];
+  const normalizedModels = models.length ? models : ['Honda City'];
+  const minPrice = normalizePrice(input?.minPrice, 'Minimum price');
+  const maxPrice = normalizePrice(input?.maxPrice, 'Maximum price');
 
   if (minPrice !== undefined && maxPrice !== undefined && minPrice > maxPrice) {
     throw new Error(`Minimum price (${minPrice}) cannot be greater than maximum price (${maxPrice}).`);
   }
 
+  const searchJobCount = sources.length * normalizedCities.length * normalizedModels.length;
+  if (searchJobCount > MAX_SEARCH_JOBS) {
+    throw new Error(`Input creates ${searchJobCount} source/city/model searches; maximum is ${MAX_SEARCH_JOBS}.`);
+  }
+
   return {
     source,
-    sources: source === 'both' ? ['cardekho', 'cartrade'] : [source],
-    cities: cities.length ? cities : ['Mumbai'],
-    models: models.length ? models : ['honda city'],
+    sources: [...sources],
+    cities: normalizedCities,
+    models: normalizedModels,
     minPrice,
     maxPrice,
-    maxResults: clampNumber(input?.maxResults ?? 10, 1, MAX_RESULTS),
+    maxResults: normalizeMaxResults(input?.maxResults),
   };
 }
 
@@ -361,7 +371,7 @@ function parseCarTradeCards(job: SearchJob, html: string): UsedCarRecord[] {
   return records;
 }
 
-function passesPriceFilter(record: UsedCarRecord, minPrice?: number, maxPrice?: number): boolean {
+export function passesPriceFilter(record: UsedCarRecord, minPrice?: number, maxPrice?: number): boolean {
   if (record.price === null) return minPrice === undefined && maxPrice === undefined;
   if (minPrice !== undefined && record.price < minPrice) return false;
   if (maxPrice !== undefined && record.price > maxPrice) return false;
@@ -373,22 +383,30 @@ function isUsefulRecord(record: UsedCarRecord): boolean {
 }
 
 function normalizeSource(value: unknown): NormalizedInput['source'] {
-  return value === 'cardekho' || value === 'cartrade' || value === 'both' ? value : 'both';
+  return value === 'cardekho' || value === 'cartrade' || value === 'both' ? value : 'cardekho';
 }
 
 function uniqueStrings(values: unknown): string[] {
   if (!Array.isArray(values)) return [];
-  return Array.from(new Set(values.filter((value): value is string => typeof value === 'string')));
+  return Array.from(new Set(values
+    .filter((value): value is string => typeof value === 'string')
+    .map((value) => value.replace(/\s+/g, ' ').trim())
+    .filter(Boolean)));
 }
 
-function normalizeNumber(value: unknown): number | undefined {
+function normalizePrice(value: unknown, label: string): number | undefined {
   if (value === null || value === undefined || value === '') return undefined;
   const number = Number(value);
-  return Number.isFinite(number) ? number : undefined;
+  if (!Number.isFinite(number) || number < 0) {
+    throw new Error(`${label} must be a non-negative INR amount.`);
+  }
+  return number;
 }
 
-function clampNumber(value: number, min: number, max: number): number {
-  return Math.max(min, Math.min(max, Math.floor(value)));
+function normalizeMaxResults(value: unknown): number {
+  const number = Number(value ?? 1);
+  if (!Number.isFinite(number)) return 1;
+  return Math.max(1, Math.min(MAX_RESULTS, Math.floor(number)));
 }
 
 function slugifyCity(city: string, source: Source): string {
@@ -500,9 +518,9 @@ function extractPriceDisplay(text: string): string | null {
   return cleanOptionalString(text.match(/(?:\u20B9|Rs\.?|INR)\s*[\d,.]+(?:\s*(?:Lakh|Crore))?/i)?.[0]);
 }
 
-function parseIndianPrice(value: string | null): number | null {
+export function parseIndianPrice(value: string | null): number | null {
   if (!value) return null;
-  const match = value.match(/([\d,.]+)\s*(lakh|crore)?/i);
+  const match = value.match(/(\d[\d,.]*)\s*(lakh|crore)?/i);
   if (!match) return null;
   const numeric = Number(match[1].replace(/,/g, ''));
   if (!Number.isFinite(numeric)) return null;

@@ -1,8 +1,8 @@
 {
-  "source": "both",
+  "source": "cardekho",
   "cities": ["Mumbai"],
   "models": ["Honda City"],
-  "maxResults": 12,
+  "maxResults": 1,
   "proxyConfiguration": {
     "useApifyProxy": false
   }

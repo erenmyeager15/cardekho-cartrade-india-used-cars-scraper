@@ -1,8 +1,12 @@
 # CarDekho & CarTrade India Used Cars Scraper - Prices, KM & Listings
 
-The CarDekho and CarTrade used cars scraper extracts real Indian used-car listings by city and car model from both marketplaces. Export to JSON, CSV, Excel, or HTML, or pull via the Apify API — no login and no API key required.
+The CarDekho and CarTrade used cars scraper extracts public Indian used-car listings by city and car model. Export to JSON, CSV, Excel, or HTML, or pull via the Apify API. No source-site login or API key is required.
 
 This scraper collects price, model year, kilometres driven, fuel type, transmission, ownership history, images, location, and listing URLs into one clean dataset. Built with Node.js 20, TypeScript, and native fetch, it parses each site's structured listing data with retries and optional Apify residential proxies so runs stay reliable and repeatable.
+
+For the first run, select `cardekho`, `Mumbai`, `Honda City`, leave price filters empty, set `maxResults` to `1`, and keep proxy off. Inspect that record, then add CarTrade, more searches, or price filters.
+
+This independent Actor collects listing facts only. It does not collect phone numbers, emails, gated seller contacts, accounts, messages, saved cars, or private dashboard data.
 
 ## What It Extracts
 
@@ -25,44 +29,55 @@ This scraper collects price, model year, kilometres driven, fuel type, transmiss
 - Dealer inventory research for auto marketplaces and dealerships
 - Market research for car finance, insurance, and inspection services
 - Competitive intelligence for popular models such as Honda City, Swift, Creta, Fortuner, and Innova
-- Market analytics for resale values, mileage bands, fuel type demand, and city-level supply
+- Market analytics for listing-price bands, mileage, fuel type, and city-level supply
 
 ## Pricing
 
 | Event | Price | 1,000 cars | 10,000 cars |
 | --- | ---: | ---: | ---: |
+| `apify-actor-start` | `$0.00005 / GB` | - | - |
 | `car-scraped` | `$0.003` per car | `$3.00` | `$30.00` |
 
-Each clean used-car record is saved and charged atomically. The Actor stops before further source requests when the user's spending limit is reached.
+Each clean used-car record is saved and charged atomically. Failed, blocked, or empty pages do not create `car-scraped` charges, but the startup event and platform resource consumption can still apply. The Actor stops before further source requests when the user's spending limit is reached.
+
+Cost-control tips:
+
+- Start with CarDekho, one city, one model, and `maxResults: 1`.
+- Leave price filters empty for the first run.
+- Keep proxy off while direct requests are working; enable it only if source access becomes unreliable.
+- Set a maximum cost per run in Apify Console before scaling.
+- Use `both` only after checking a one-source result.
 
 ## Input
 
 | Field | Type | Description |
 | --- | --- | --- |
-| `source` | string | `both`, `cardekho`, or `cartrade`. |
+| `source` | string | `both`, `cardekho`, or `cartrade`. Default: `cardekho`. |
 | `cities` | string array | Cities such as `Mumbai`, `Delhi NCR`, `Bangalore`, `Hyderabad`, `Chennai`, or `Pune`. |
 | `models` | string array | Car make/model searches such as `Honda City`, `Maruti Swift`, `Toyota Fortuner`, or `All Cars`. |
 | `minPrice` | integer | Optional minimum listing price in INR. |
 | `maxPrice` | integer | Optional maximum listing price in INR. |
-| `maxResults` | integer | Number of unique used-car listings to save, up to 500. |
-| `proxyConfiguration` | object | Optional Apify Proxy settings. |
+| `maxResults` | integer | Number of unique used-car listings to save, up to 500. Default: `1`. |
+| `proxyConfiguration` | object | Optional Apify Proxy settings. Direct requests are the default. |
 
 ## How to Scrape Used Cars in India (Step by Step)
 
-1. Choose `both`, `cardekho`, or `cartrade`.
-2. Enter one or more cities, such as `Mumbai` and `Delhi NCR`.
-3. Enter one or more models, such as `Honda City` or `Toyota Fortuner`.
-4. Optionally set a price range and result limit.
-5. Run the actor and export the dataset or connect through the Apify API.
+1. Choose `cardekho` for the smallest first run.
+2. Enter one city, such as `Mumbai`.
+3. Enter one model, such as `Honda City`.
+4. Leave price filters empty, set `maxResults` to `1`, and keep proxy off.
+5. Run the Actor and check the dataset.
+6. Add CarTrade, cities, models, or price filters only after the first result looks correct.
 
 ## Example Input
 
 ```json
 {
-  "source": "both",
+  "source": "cardekho",
   "cities": ["Mumbai"],
   "models": ["Honda City"],
-  "maxResults": 50
+  "maxResults": 1,
+  "proxyConfiguration": { "useApifyProxy": false }
 }
 ```
 
@@ -75,7 +90,7 @@ Each clean used-car record is saved and charged atomically. The Actor stops befo
   "models": ["Maruti Swift", "Hyundai Creta"],
   "minPrice": 300000,
   "maxPrice": 900000,
-  "maxResults": 200,
+  "maxResults": 20,
   "proxyConfiguration": { "useApifyProxy": true, "apifyProxyGroups": ["RESIDENTIAL"] }
 }
 ```
@@ -115,20 +130,21 @@ Each clean used-car record is saved and charged atomically. The Actor stops befo
 ## API Example
 
 ```bash
-curl -X POST "https://api.apify.com/v2/acts/YOUR_ACTOR_ID/runs?token=YOUR_API_TOKEN" \
+curl -X POST "https://api.apify.com/v2/acts/fascinating_lentil~cardekho-cartrade-india-used-cars-scraper/runs?token=YOUR_API_TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"source":"both","cities":["Mumbai"],"models":["Honda City"],"maxResults":50}'
+  -d '{"source":"cardekho","cities":["Mumbai"],"models":["Honda City"],"maxResults":1,"proxyConfiguration":{"useApifyProxy":false}}'
 ```
 
 ```js
 import { ApifyClient } from 'apify-client';
 
 const client = new ApifyClient({ token: 'YOUR_API_TOKEN' });
-const run = await client.actor('YOUR_ACTOR_ID').call({
-  source: 'both',
+const run = await client.actor('fascinating_lentil/cardekho-cartrade-india-used-cars-scraper').call({
+  source: 'cardekho',
   cities: ['Mumbai'],
   models: ['Honda City'],
-  maxResults: 50,
+  maxResults: 1,
+  proxyConfiguration: { useApifyProxy: false },
 });
 const { items } = await client.dataset(run.defaultDatasetId).listItems();
 console.log(`Got ${items.length} used-car listings`);
@@ -144,13 +160,14 @@ The actor fetches public used-car listing pages from CarDekho and CarTrade, pars
 - CarDekho's public structured listing data can repeat across paginated pages, so CarDekho extraction uses the reliable structured listing page per city/model search. CarTrade supports deeper page pagination.
 - Some fields are source-dependent. For example, CarTrade card pages may not expose transmission or owner on every result.
 - Source websites may change their public markup or restrict traffic. Use Apify Proxy if larger runs become less reliable.
-- This actor is not affiliated with CarDekho or CarTrade.
+- Listing availability and prices can change after scraping; verify important decisions against the source page.
+- This Actor is not affiliated with CarDekho or CarTrade.
 
 ## Responsible Use
 
 This Actor is intended for lawful collection of publicly available information only. Users are responsible for ensuring their use complies with the source website's terms, robots.txt, applicable privacy laws, including India's DPDP Act, and all local regulations.
 
-Do not use this Actor to collect, store, sell, or misuse personal data without a lawful basis. The Actor author is not responsible for misuse by end users.
+Do not use this Actor for seller, dealer, buyer, or owner lead generation, or to collect, store, sell, or misuse personal data. The Actor author is not responsible for misuse by end users.
 
 ## License
 

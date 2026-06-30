@@ -1,14 +1,15 @@
 {
     "title":  "India Used Cars Scraper Input",
+    "description":  "Collect public used-car listings. For a low-cost first run, use CarDekho, Mumbai, Honda City, one result, no price filters, and direct requests.",
     "type":  "object",
     "schemaVersion":  1,
     "properties":  {
                        "source":  {
                                       "title":  "Source",
                                       "type":  "string",
-                                      "description":  "Choose CarDekho, CarTrade, or both sources.",
+                                      "description":  "Choose one marketplace or both. Start with CarDekho for the smallest first run.",
                                       "editor":  "select",
-                                      "default":  "both",
+                                      "default":  "cardekho",
                                       "enum":  [
                                                    "both",
                                                    "cardekho",
@@ -23,8 +24,10 @@
                        "cities":  {
                                       "title":  "Cities",
                                       "type":  "array",
-                                      "description":  "Indian cities to search. Examples: Mumbai, Delhi NCR, Bangalore, Hyderabad, Chennai, Pune.",
+                                      "description":  "Indian cities to search. Start with one city such as Mumbai, Delhi NCR, Bangalore, Hyderabad, Chennai, or Pune.",
                                       "editor":  "stringList",
+                                      "minItems":  1,
+                                      "maxItems":  10,
                                       "default":  [
                                                       "Mumbai"
                                                   ]
@@ -32,8 +35,10 @@
                        "models":  {
                                       "title":  "Car models",
                                       "type":  "array",
-                                      "description":  "Car make/model searches. Examples: Honda City, Maruti Swift, Toyota Fortuner. Use All Cars for broad city listings.",
+                                      "description":  "Car make/model searches. Start with one model such as Honda City, Maruti Swift, or Toyota Fortuner. Use All Cars for broad city listings.",
                                       "editor":  "stringList",
+                                      "minItems":  1,
+                                      "maxItems":  10,
                                       "default":  [
                                                       "Honda City"
                                                   ]
@@ -55,16 +60,16 @@
                        "maxResults":  {
                                           "title":  "Max results",
                                           "type":  "integer",
-                                          "description":  "Maximum number of unique used-car listings to save. Supports up to 500 records per run.",
+                                          "description":  "Maximum number of unique used-car listings to save. Start with 1, inspect the output, and then scale up.",
                                           "editor":  "number",
-                                          "default":  10,
+                                          "default":  1,
                                           "minimum":  1,
                                           "maximum":  500
                                       },
                        "proxyConfiguration":  {
                                                   "title":  "Proxy configuration",
                                                   "type":  "object",
-                                                  "description":  "Optional Apify Proxy settings. Direct requests usually work; proxies can improve reliability for larger runs.",
+                                                  "description":  "Direct requests are the low-cost default. Enable Apify Proxy only when source access is unreliable.",
                                                   "editor":  "proxy",
                                                   "default":  {
                                                                   "useApifyProxy":  false
